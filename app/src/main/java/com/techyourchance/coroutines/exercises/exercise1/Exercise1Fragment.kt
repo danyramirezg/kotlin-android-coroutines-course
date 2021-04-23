@@ -14,9 +14,11 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
+import kotlinx.coroutines.*
 
 class Exercise1Fragment : BaseFragment() {
 
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
     override val screenTitle get() = ScreenReachableFromHome.EXERCISE_1.description
 
     private lateinit var edtUserId: EditText
@@ -34,7 +36,7 @@ class Exercise1Fragment : BaseFragment() {
 
         edtUserId = view.findViewById(R.id.edt_user_id)
         edtUserId.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnGetReputation.isEnabled = !s.isNullOrEmpty()
@@ -43,23 +45,31 @@ class Exercise1Fragment : BaseFragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
+
+
         btnGetReputation = view.findViewById(R.id.btn_get_reputation)
         btnGetReputation.setOnClickListener {
             logThreadInfo("button callback")
-            btnGetReputation.isEnabled = false
-            getReputationForUser(edtUserId.text.toString())
-            btnGetReputation.isEnabled = true
+
+            coroutineScope.launch {
+                btnGetReputation.isEnabled = false
+                val getReputation = getReputationForUser(edtUserId.text.toString())
+                Toast.makeText(requireContext(), "$getReputation", Toast.LENGTH_SHORT).show()
+                btnGetReputation.isEnabled = true
+            }
         }
 
         return view
     }
 
-    private fun getReputationForUser(userId: String) {
-        logThreadInfo("getReputationForUser()")
+    private suspend fun getReputationForUser(userId: String): Int {
 
-        val reputation = getReputationEndpoint.getReputation(userId)
+        return withContext(Dispatchers.Default) {
+            logThreadInfo("getReputationForUser()")
+            getReputationEndpoint.getReputation(userId)
+            //Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
+        }
 
-        Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
     }
 
     private fun logThreadInfo(message: String) {
