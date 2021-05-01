@@ -14,6 +14,8 @@ import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger
 import com.techyourchance.coroutines.exercises.exercise1.GetReputationEndpoint
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
+
+
 import kotlinx.coroutines.*
 
 class Exercise5Fragment : BaseFragment() {
@@ -22,19 +24,22 @@ class Exercise5Fragment : BaseFragment() {
 
     override val screenTitle get() = ScreenReachableFromHome.EXERCISE_5.description
 
+    private lateinit var getReputationUseCase1: GetReputationUseCase1
+
     private lateinit var edtUserId: EditText
     private lateinit var btnGetReputation: Button
     private lateinit var txtElapsedTime: TextView
 
 
-    private lateinit var getReputationEndpoint: GetReputationEndpoint
-
     private var job: Job? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getReputationEndpoint = compositionRoot.getReputationEndpoint
+        // Implementation of Dependency injection
+        getReputationUseCase1 = compositionRoot.getReputationUseCase1
     }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_exercise_5, container, false)
@@ -43,7 +48,7 @@ class Exercise5Fragment : BaseFragment() {
 
         edtUserId = view.findViewById(R.id.edt_user_id)
         edtUserId.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 btnGetReputation.isEnabled = !s.isNullOrEmpty()
@@ -57,7 +62,7 @@ class Exercise5Fragment : BaseFragment() {
             logThreadInfo("button callback")
             job = coroutineScope.launch {
                 btnGetReputation.isEnabled = false
-                val reputation = getReputationForUser(edtUserId.text.toString())
+                val reputation = getReputationUseCase1.getReputationForUser(edtUserId.text.toString())
                 Toast.makeText(requireContext(), "reputation: $reputation", Toast.LENGTH_SHORT).show()
                 btnGetReputation.isEnabled = true
             }
@@ -72,12 +77,6 @@ class Exercise5Fragment : BaseFragment() {
         btnGetReputation.isEnabled = true
     }
 
-    private suspend fun getReputationForUser(userId: String): Int {
-        return withContext(Dispatchers.Default) {
-            logThreadInfo("getReputationForUser()")
-            getReputationEndpoint.getReputation(userId)
-        }
-    }
 
     private fun logThreadInfo(message: String) {
         ThreadInfoLogger.logThreadInfo(message)

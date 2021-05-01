@@ -19,6 +19,7 @@ import com.techyourchance.coroutines.exercises.exercise8.GetUserEndpoint
 import com.techyourchance.coroutines.exercises.exercise8.UsersDao
 import com.techyourchance.coroutines.exercises.exercise1.GetReputationEndpoint
 import com.techyourchance.coroutines.exercises.exercise4.FactorialUseCase
+import com.techyourchance.coroutines.exercises.exercise5.GetReputationUseCase1
 import com.techyourchance.coroutines.exercises.exercise6.Exercise6BenchmarkUseCase
 import com.techyourchance.coroutines.exercises.exercise6.PostBenchmarkResultsEndpoint
 import com.techyourchance.coroutines.exercises.exercise9.FetchAndCacheUsersUseCaseExercise9
@@ -61,6 +62,8 @@ class ActivityCompositionRoot(
     val factorialUseCase get() = FactorialUseCase()
 
     val benchmarkUseCase get() = BenchmarkUseCase()
+
+    val getReputationUseCase1 get() = GetReputationUseCase1(getReputationEndpoint)
 
     val cancellableBenchmarkUseCase get() = CancellableBenchmarkUseCase()
 
