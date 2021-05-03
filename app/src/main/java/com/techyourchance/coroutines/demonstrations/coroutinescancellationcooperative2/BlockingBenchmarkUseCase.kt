@@ -14,7 +14,13 @@ class BlockingBenchmarkUseCase {
 
         var iterationsCount: Long = 0
         while (System.nanoTime() < stopTimeNano) {
-            coroutineContext.ensureActive()
+            coroutineContext.ensureActive() // checks the job internally,checks if the coroutine is active
+                                            // If not throw a CancellationException
+//            The above code is the same that:
+//            if(!coroutineContext.isActive){
+//                throw CancellationException()
+//            }
+
             iterationsCount++
         }
 
