@@ -9,7 +9,8 @@ import org.junit.Test
 import java.lang.Exception
 import kotlin.coroutines.EmptyCoroutineContext
 
-class CoroutinesMechanicsExplorationsTest {
+class
+CoroutinesMechanicsExplorationsTest {
 
     @Test
     fun coroutineScope_launch() {
