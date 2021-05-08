@@ -13,11 +13,14 @@ class FetchAndCacheUsersUseCaseExercise9(
         private val usersDao: UsersDao
 ) {
 
-    suspend fun fetchAndCacheUsers(userIds: List<String>) = withContext(Dispatchers.Default) {
-        for (userId in userIds) {
-            val user = getUserEndpoint.getUser(userId)
-            usersDao.upsertUserInfo(user)
-        }
+    suspend fun fetchAndCacheUsers(userIds: List<String>): List<User> = withContext(Dispatchers.Default) {
+        userIds.map { userId -> // The map combines all the deferred return from the async into a list
+            async {
+                val user = getUserEndpoint.getUser(userId)
+                usersDao.upsertUserInfo(user)
+                user // async returns this user
+            }
+        }.awaitAll() // Convert the list in a list of results
     }
 
 }

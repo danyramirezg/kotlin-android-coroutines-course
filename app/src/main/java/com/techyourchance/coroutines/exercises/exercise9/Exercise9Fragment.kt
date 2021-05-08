@@ -34,7 +34,11 @@ class Exercise9Fragment : BaseFragment() {
         fetchAndCacheUsersUseCase = compositionRoot.fetchAndCacheUserUseCaseExercise9
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_exercise_9, container, false)
 
         view.apply {
@@ -53,14 +57,20 @@ class Exercise9Fragment : BaseFragment() {
             coroutineScope.launch {
                 try {
                     btnFetch.isEnabled = false
-                    fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds)
+                    val users = fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds)
+                    bindUsers(users)
                     updateElapsedTimeJob.cancel()
                 } catch (e: CancellationException) {
-                    updateElapsedTimeJob.cancelAndJoin()
-                    txtElapsedTime.text = ""
-                    txtUsers.text = ""
+                    withContext(NonCancellable) {
+                        updateElapsedTimeJob.cancelAndJoin()
+                        txtElapsedTime.text = ""
+                        txtUsers.text = ""
+                    }
+
                 } finally {
-                    btnFetch.isEnabled = true
+                    withContext(NonCancellable) {
+                        btnFetch.isEnabled = true
+                    }
                 }
             }
         }
